@@ -4,6 +4,7 @@
 * [General info](#general-info)
 * [Lab1 Task](#lab-1-task)
 * [Lab2 Task](#lab-2-task)
+* [Lab3 Task](#lab-3-task)  
 * [Features implemented](#features-implemented)
 * [Technologies](#technologies)
 * [To use](#to-use)
@@ -27,6 +28,10 @@ Security-Benchmarking-Tool - a desktop application which works with cyber securi
 • Create and save a policy that contains only the selected options under the same name or
 a different one
 
+## Lab 3 Task
+• Perform an audit of the workstation, using the options that were selected;
+
+• Output the results of the audit on screen.
 
 ## Features implemented
 1. Download Audit Policies from the link: https://www.tenable.com/;
@@ -38,6 +43,8 @@ a different one
 7. Select or deselect all options in one click;
 8. Create and save a policy that contains only the selected options under the same name or
 a different one.
+9. Perform an audit of the workstation, using the options that were selected;
+10. Output the results of the audit on screen.
 
 ## Technologies
 1. Python3 and Tkinter

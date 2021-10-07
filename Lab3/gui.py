@@ -1,5 +1,6 @@
 import glob
 import json
+import subprocess
 import tarfile
 from tkinter import *
 from tkinter import filedialog as fd
@@ -14,19 +15,124 @@ main = Tk()
 myFont = Font(family="Mincho", size=13)
 s = ttk.Style()
 s.configure('TFrame', background='#FFC7FF')
-main.title("Security Benchmarking Tool Lab 2 Malîi Antonela")
+main.title("Security Benchmarking Tool Lab 3 Malîi Antonela")
 main.geometry("1550x700")
 frame = ttk.Frame(main, width=1550, height=700, style='TFrame', padding=(4, 4, 450, 450))
 frame.grid(column=0, row=0)
-
 previous = []
 index = 0
 arr = []
 matching = []
-querry =StringVar()
+
+SystemDict = {}
+querry = StringVar()
 vars = StringVar()
 tofile = []
 structure = []
+
+success = []
+success1 = []
+fail = []
+unknown = []
+
+toChange=[]
+vars1=StringVar()
+vars2=StringVar()
+arr1=[]
+arr2=[]
+arr2copy=[]
+
+failedselected=[]
+
+def make_query(struct):
+    query = 'reg query ' + struct['reg_key'] + ' /v ' + struct['reg_item']
+    out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = out.communicate()[0].decode('ascii', 'ignore')
+    str = ''
+    for char in output:
+        if char.isprintable() and char != '\n' and char != '\r':
+            str += char
+    output = str
+    output = output.split(' ')
+    output = [x for x in output if len(x) > 0]
+    value = ''
+
+    if 'ERROR' in output[0]:
+        unknown.append(struct['reg_key'] + struct ['reg_item'])
+    for i in range(len(output)):
+        if 'REG_' in output[i]:
+            for element in output[i + 1:]:
+                value = value + element + ' '
+            value = value [:len(value) - 1]
+            if struct ['value_data'][:2] == '0x':
+                struct ['value_data'] = struct ['value_data'][2:]
+            struct['value_data'] = hex(int(struct ['value_data']))
+            p = re.compile('.*' + struct ['value_data'] + '.*')
+            if p.match(value):
+                print('PASSED Policy desc:'+struct['description'])
+                print('Patern:', struct['value_data'])
+                print('Value:', value)
+                success.append(struct['reg_key'] + struct['reg_item'] + '\n' + 'Value:' + value)
+                success1.append([struct,value])
+
+            else:
+                print('FAILED Policy desc:' + struct['description'])
+                print('Did not pass: ', struct['value_data'])
+                print('Value which did not pass: ', value)
+                fail.append([struct, value])
+
+
+
+def check():
+
+    for struct in structure:
+        if 'reg_key' in struct and 'reg_item' in struct and 'value_data' in struct:
+            make_query(struct)
+
+    for i in range(len(success1)):
+        item1=success1[i]
+        arr1.append(' PASSED POLICY Description' + item1[0]['description'])
+        arr1.append(' Item:' + item1[0]['reg_item'])
+        arr1.append(' Value:' + item1[1])
+        arr1.append(' Desired:' + item1[0]['value_data'])
+
+    for i in range(len(fail)):
+        item2=fail[i]
+        arr2.append(' FAILED POLICY Description' + item2[0]['description'])
+        arr2.append(' Item:' + item2[0]['reg_item'])
+        arr2.append(' Value:' + item2[1])
+        arr2.append(' Desired:' + item2[0]['value_data'])
+        global arr2copy
+        arr2copy=arr2
+
+
+    procent = int((len(success1)/(len(success1)+len(fail)))*100)
+    print(procent)
+    arr1.append('The system is securised :' + str(procent) + ' % ')
+    arr2.append('The system is securised :' + str(procent) + ' % ')
+    vars1.set(arr1)
+    vars2.set(arr2)
+
+    frame2 = Frame(main, bd=10, bg='#140000', highlightthickness=10)
+    frame2.config(highlightbackground="Red")
+    frame2.place(relx=0.5, rely=0.1, width=800, relwidth=0.4, relheight=0.8, anchor='n')
+    listbox_succes = Listbox(frame2, bg="#6aa84f", font=myFont, fg="black", listvariable=vars1, selectmode=MULTIPLE,width=50, height=27, highlightthickness=3)
+    listbox_succes.place(relx=0.07, rely=0.03, relwidth=0.4, relheight=0.9)
+    listbox_succes.config(highlightbackground="green")
+    listbox_fail = Listbox(frame2, bg="#e06666", font=myFont, fg="black", listvariable=vars2, selectmode=MULTIPLE,width=50, height=27, highlightthickness=3)
+    listbox_fail.place(relx=0.5, rely=0.03, relwidth=0.4, relheight=0.9)
+    listbox_fail.config(highlightbackground="red")
+
+    def exit():
+        frame2.destroy()
+
+    exit_btn = Button(frame2, text='Back', command=exit, bg="#0023FF", fg="white", font=myFont, padx='10px',
+                      pady='3px')
+    exit_btn.place(relx=0.93, rely=0.92)
+
+
+
+
 
 
 def entersearch(evt):
@@ -146,7 +252,7 @@ def deselect_all():
         lstbox.selection_clear(0, END)
 
 
-
+##
 
 text = Text(frame, bg="#000000", fg="white", font=myFont, width=55, height=27, highlightthickness=3)
 text.config(highlightbackground="white")
@@ -165,6 +271,8 @@ global e
 e = Entry(frame, bg="#f5f5f5", font=myFont, width=30, textvariable=querry).place(relx=0.29, rely=0.095)
 search_button = Button(frame, bg="#0023FF", fg="white", font=myFont, text="Search", width=7, height=1,
                        command=search).place(relx=0.48, rely=0.089)
+check_button = Button(frame, bg="#0023FF", fg="white", font=myFont, text="Check", width=7, height=1,
+                       command=check).place(relx=0.54, rely=0.089)
 
 main.bind('<Return>', entersearch)
 main.mainloop()
