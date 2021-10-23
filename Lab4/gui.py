@@ -44,6 +44,7 @@ arr2copy=[]
 
 failedselected=[]
 
+
 def make_query(struct):
     query = 'reg query ' + struct['reg_key'] + ' /v ' + struct['reg_item']
     out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -82,9 +83,7 @@ def make_query(struct):
                 fail.append([struct, value])
 
 
-
 def check():
-
     for struct in structure:
         if 'reg_key' in struct and 'reg_item' in struct and 'value_data' in struct:
             make_query(struct)
@@ -92,16 +91,10 @@ def check():
     for i in range(len(success1)):
         item1=success1[i]
         arr1.append(' PASSED POLICY Description' + item1[0]['description'])
-        arr1.append(' Item:' + item1[0]['reg_item'])
-        arr1.append(' Value:' + item1[1])
-        arr1.append(' Desired:' + item1[0]['value_data'])
 
     for i in range(len(fail)):
         item2=fail[i]
         arr2.append(' FAILED POLICY Description' + item2[0]['description'])
-        arr2.append(' Item:' + item2[0]['reg_item'])
-        arr2.append(' Value:' + item2[1])
-        arr2.append(' Desired:' + item2[0]['value_data'])
         global arr2copy
         arr2copy=arr2
 
@@ -130,10 +123,82 @@ def check():
                       pady='3px')
     exit_btn.place(relx=0.93, rely=0.92)
 
+    def changeFailures():
+        global arr2copy
+        global arr2
+        backup()
+        for i in range(len(failedselected)):
+            struct = failedselected[i][0]
+            query = 'reg add "' + struct['reg_key'] + '" /v ' + struct['reg_item'] + ' /d "' + struct[
+                'value_data'] + '" /f'
+            print(query)
+            out = subprocess.Popen(query,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+            output = out.communicate()[0].decode('ascii', 'ignore')
+            str = ''
+            for char in output:
+                if char.isprintable() and char != '\n' and char != '\r':
+                    str += char
+            output = str
+            print(output)
+            vars2.set(arr2)
+            arr2copy = arr2
+
+    def restore():
+        f = open('backup.txt')
+        fail = json.loads(f.read())
+        print(fail)
+        f.close()
+
+        for i in range(len(fail)):
+            struct = fail[i][0]
+            query = 'reg add ' + struct['reg_key'] + ' /v ' + struct['reg_item'] + ' /d ' + fail[i][1] + ' /f'
+            print('Query:', query)
+            out = subprocess.Popen(query,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+            output = out.communicate()[0].decode('ascii', 'ignore')
+            str = ''
+            for char in output:
+                if char.isprintable() and char != '\n' and char != '\r':
+                    str += char
+            output = str
+            print(output)
+
+    def backup():
+        f=open('backup.txt','w')
+        backupString=json.dumps(fail)
+        f.write(backupString)
+        f.close()
+    changeBtn= Button(frame2, text='Change', command=changeFailures, bg="#300000", fg="white", font=myFont, padx='10px',
+                      pady='3px')
+    changeBtn.place(relx=0.30, rely=0.95)
+
+    backupBtn = Button(frame2, text='Restore', command=restore, bg="#300000", fg="white", font=myFont,
+                       padx='10px',
+                       pady='3px')
+    backupBtn.place(relx=0.70, rely=0.95)
 
 
+def on_select_failed(evt):
+    w = evt.widget
+    actual = w.curselection()
+
+    global failedselected
+    global arr2
+    failedselected=[]
+    for i in actual:
+        failedselected.append(fail[i])
+    localarr2=[]
+    for i in actual:
+        localarr2.append(arr2copy[i])
+    arr2=localarr2
+    arr2=[x for x in arr2copy if x not in arr2]
+    print(failedselected)
 
 
+###
 
 def entersearch(evt):
     search()
