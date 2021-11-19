@@ -5,7 +5,8 @@
 * [Lab1 Task](#lab-1-task)
 * [Lab2 Task](#lab-2-task)
 * [Lab3 Task](#lab-3-task)
-* [Lab4 Task](#lab-4-task)  
+* [Lab4 Task](#lab-4-task)
+* [Lab5 Task](#lab-5-task)  
 * [Features implemented](#features-implemented)
 * [Technologies](#technologies)
 * [To use](#to-use)
@@ -41,6 +42,13 @@ a different one
 
 • Rollback to the system’s initial settings.
 
+## Lab 5 Task
+• Select the settings to be enforced (a subset of ”Failed”, or all of them);
+
+• Enforce the policy on at least 20 settings (edit the selected settings in your system);
+
+• Rollback to the system’s initial settings.
+
 ## Features implemented
 1. Download Audit Policies from the link: https://www.tenable.com/;
 2. Import the manually downloaded policies and return them to GUI in a readable form.;
@@ -54,7 +62,7 @@ a different one.
 9. Perform an audit of the workstation, using the options that were selected;
 10. Output the results of the audit on screen.
 11. Select the settings to be enforced (a subset of ”Failed”, or all of them);
-12. Enforce the policy on at least 5 settings (edit the selected settings in your system);
+12. Enforce the policy on as many failed settings as it is wanted (edit the selected settings in your system);
 13. Rollback to the system’s initial settings.
 
 ## Technologies
